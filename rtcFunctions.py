@@ -166,7 +166,7 @@ class ImportHandler:
                         component = uuidpart[3].strip()[1:-1]
                         componentname = splittedinformationline[1]
                     else:
-                        baseline = uuidpart[5].strip()[1:-1]
+                        baseline = uuidpart[7].strip()[1:-1]  # fix trim brackets for vers. 6.0.4
                         baselinename = splittedinformationline[1]
 
                     if baseline and component:
