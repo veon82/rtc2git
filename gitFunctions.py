@@ -6,7 +6,6 @@ import shouter
 import shell
 import configuration
 
-
 class Initializer:
     def __init__(self):
         config = configuration.get()
