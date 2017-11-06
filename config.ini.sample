@@ -22,6 +22,9 @@ StreamToMigrate = MyDevelopmentStream
 # (eg. When Migrating Stream_Version2, Previous-Stream would be Stream_Version1
 PreviousStream=
 
+# Specify if you want to load a single component
+component2Load =
+
 # Optional, can be defined additionally to set the workspace to a specific baseline
 # Use following format: ComponentName = BaseLineName, AnotherComponentName=BaseLineName
 # If its not set, it will determine the oldest baseline (takes some time, depending of how much components you have in your stream)
