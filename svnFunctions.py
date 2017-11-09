@@ -18,9 +18,13 @@ class svnCommiter:
             shouter.shout("[SVN] current dir=%s svndir=%s" % (os.getcwd(), config.svnrepodir))
             # 1 - rsync current git dir to svn dir
             gitrepodir = os.getcwd()
-            cmd = "rsync -r %s %s" % (
-                os.path.join(gitrepodir, config.component2load, "*"),
-                config.svnrepodir)
+            srcpath = os.path.join(gitrepodir, config.component2load)
+            # if srcpath doesn't exist search for a different dir name
+            if not os.path.exists(srcpath):
+                for dirname in os.listdir(gitrepodir):
+                    if dirname[0] != '.':
+                        srcpath = os.path.join(gitrepodir, dirname)
+            cmd = "rsync -r %s %s" % (os.path.join(srcpath, "*"), os.path.join(config.svnrepodir, "trunk"))
             shouter.shout("[SVN] %s" % cmd)
             shell.execute(cmd)
             # 2 - chdir to svnrepo, add and commit
