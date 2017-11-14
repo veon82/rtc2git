@@ -24,7 +24,7 @@ class svnCommiter:
                 for dirname in os.listdir(gitrepodir):
                     if dirname[0] != '.':
                         srcpath = os.path.join(gitrepodir, dirname)
-            cmd = "rsync -r %s %s" % (os.path.join(srcpath, "*"), os.path.join(config.svnrepodir, "trunk"))
+            cmd = "rsync -r %s %s" % (os.path.join(srcpath, "./"), os.path.join(config.svnrepodir, "trunk"))
             shouter.shout("[SVN] %s" % cmd)
             shell.execute(cmd)
             # 2 - chdir to svnrepo, add and commit
