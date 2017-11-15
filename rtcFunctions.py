@@ -150,7 +150,7 @@ class ImportHandler:
 
     def getcomponentbaselineentriesfromstream(self, stream):
         filename = self.config.getlogpath("StreamComponents_" + stream + ".txt")
-        command = "%s --show-alias n --show-uuid y list components -v -m 30 -r %s %s" % (self.config.scmcommand,
+        command = "%s --show-alias n --show-uuid y list components -v -m 100 -r %s %s" % (self.config.scmcommand,
                                                                                          self.config.repo, stream)
         shell.execute(command, filename)
         componentbaselinesentries = []
@@ -213,6 +213,42 @@ class ImportHandler:
                     break
         return componentbaselinesentries
 
+    def getallcomponentbaselines(self, stream, componentname):
+        baselines = []
+        regex = "\(_[\w-]+\)"
+        regex2="(\"[\w][^\"]+\")"
+        patternuuid = re.compile(regex)
+        patterndesc=re.compile(regex2)
+        config = self.config
+        componentbaselinesentries = self.getcomponentbaselineentriesfromstream(stream)
+        for entry in componentbaselinesentries:
+            if entry.componentname != componentname:
+                continue
+            # use always scm, lscm fails when specifying maximum over 10k
+            command = "scm --show-alias n --show-uuid y list baselines --components %s -r %s -u %s -P '%s' -m 20000" % \
+                    (entry.component, config.repo, config.user, config.password)
+            baselineslines = shell.getoutput(command)
+            baselineslines.reverse()  # reverse to have earliest baseline on top
+            for baselineline in baselineslines:
+                matcheruuid = patternuuid.search(baselineline)
+                matcherdesc = patterndesc.search(baselineline)
+                if matcheruuid:
+                    matchedstring = matcheruuid.group()
+                    # skip "Component" entry (it's not a baseline!)
+                    if matchedstring[1:-1] == entry.component:
+                        continue
+                    baseline = matchedstring[1:-1]
+                    if matcherdesc:
+                        baselinename = matcherdesc.group().strip('"')
+                    else:
+                        baselinename = "noname"
+                    # skip backup baselines created by RTC system
+                    if baselinename.lower().startswith("backup before"):
+                        continue
+                    baselines.append(
+                        ComponentBaseLineEntry(entry.component, baseline, entry.componentname, baselinename))
+        return baselines
+
     def acceptchangesintoworkspace(self, changeentries):
         amountofchanges = len(changeentries)
         shouter.shoutwithdate("Start accepting %s changesets" % amountofchanges)
@@ -231,7 +267,7 @@ class ImportHandler:
                 Commiter.addandcommit(changeEntry)
 
                 # SVN support
-                if self.config.svnrepodir:
+                if self.config.svnrepodir.strip():
                     svnCommiter.addandcommit(changeEntry)
         return amountofacceptedchanges
 
@@ -414,6 +450,14 @@ class ImportHandler:
         comparecommand = "%s --show-alias n --show-uuid y compare ws %s %s %s -r %s -I swc -C @@{name}@@{email}@@ --flow-directions i -D @@\"%s\"@@" \
                          % (self.config.scmcommand, self.config.workspace, comparetype.name, value, self.config.repo,
                             dateformat)
+        shell.execute(comparecommand, outputfilename)
+        return ImportHandler.getchangeentriesfromfile(outputfilename)
+
+    def getchangeentriesbetweenbaselines(self, b1, b2):
+        dateformat = "yyyy-MM-dd HH:mm:ss"
+        outputfilename = self.config.getlogpath("CompareBaselines_" + self.config.component2load + ".txt")
+        comparecommand = "%s --show-alias n --show-uuid y compare baseline %s baseline %s -r %s -I swc -C @@{name}@@{email}@@ --flow-directions i -D @@\"%s\"@@" \
+                         % (self.config.scmcommand, b1, b2, self.config.repo, dateformat)
         shell.execute(comparecommand, outputfilename)
         return ImportHandler.getchangeentriesfromfile(outputfilename)
 
