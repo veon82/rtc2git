@@ -24,12 +24,16 @@ class svnCommiter:
                 for dirname in os.listdir(gitrepodir):
                     if dirname[0] != '.':
                         srcpath = os.path.join(gitrepodir, dirname)
-            cmd = "rsync -r %s %s" % (os.path.join(srcpath, "./"), os.path.join(config.svnrepodir, "trunk"))
+            cmd = "rsync -r %s %s --delete" % (os.path.join(srcpath, "./"), os.path.join(config.svnrepodir, "trunk"))
             shouter.shout("[SVN] %s" % cmd)
             shell.execute(cmd)
             # 2 - chdir to svnrepo, add and commit
             os.chdir(config.svnrepodir)
             cmd = "svn add --force * --auto-props --parents --depth infinity -q"
+            shouter.shout("[SVN] %s" % cmd)
+            shell.execute(cmd)
+            # 2.1 - mark deleted files for commit
+            cmd = "svn status | grep '^!' | awk '{print $2}' | xargs svn delete"
             shouter.shout("[SVN] %s" % cmd)
             shell.execute(cmd)
             comment = Commiter.getcommentwithprefix(changeentry.comment)
