@@ -10,6 +10,7 @@ from rtcFunctions import RTCInitializer
 from rtcFunctions import RTCLogin
 from gitFunctions import Initializer, Differ
 from gitFunctions import Commiter
+from svnFunctions import svnCommiter
 import configuration
 import shouter
 
@@ -56,7 +57,7 @@ def migrate():
     rtc = ImportHandler()
     rtcworkspace = WorkspaceHandler()
     git = Commiter
-
+    svn = svnCommiter
     if existsrepo():
         resume()
     else:
@@ -68,19 +69,55 @@ def migrate():
     branchname = streamname + "_branchpoint"
 
     componentbaselineentries = rtc.getcomponentbaselineentriesfromstream(streamuuid)
+    shouter.shout(" # componentbaselineentries:")
+    for cbe in componentbaselineentries:
+        shouter.shout(" # %s %s %s %s" % (cbe.componentname, cbe.component, cbe.baselinename, cbe.baseline))
+
     rtcworkspace.setnewflowtargets(streamuuid)
 
     history = rtc.readhistory(componentbaselineentries, streamname)
-    changeentries = rtc.getchangeentriesofstreamcomponents(componentbaselineentries)
+    # changeentries = rtc.getchangeentriesofstreamcomponents(componentbaselineentries)
+    # if len(changeentries) > 0:
+    #     git.branch(branchname)
+    #     rtc.acceptchangesintoworkspace(rtc.getchangeentriestoaccept(changeentries, history))
+    #     shouter.shout("All changes until creation of stream '%s' accepted" % streamname)
+    #     git.pushbranch(branchname)
 
-    if len(changeentries) > 0:
+    #     rtcworkspace.setcomponentstobaseline(componentbaselineentries, streamuuid)
+    #     rtcworkspace.load()
+
+    # progressive compare between baselines
+    # TODO: refactor this part into rtcFunctions.py
+    if config.component2load:
         git.branch(branchname)
-        rtc.acceptchangesintoworkspace(rtc.getchangeentriestoaccept(changeentries, history))
-        shouter.shout("All changes until creation of stream '%s' accepted" % streamname)
-        git.pushbranch(branchname)
+        componentbaselines = rtc.getallcomponentbaselines(streamname, config.component2load)
+        shouter.shout(" @ componentbaselines:")
+        # debug only
+        for i, cbl in enumerate(componentbaselines):
+            shouter.shout(" @ %s %s %s %s" %
+                          (cbl.componentname, cbl.component, cbl.baselinename, cbl.baseline))
 
-        rtcworkspace.setcomponentstobaseline(componentbaselineentries, streamuuid)
-        rtcworkspace.load()
+        for i, cbl in enumerate(componentbaselines):
+            missingchangeentries = {}
+            if i < len(componentbaselines)-1:
+                shouter.shout("Start collecting changeentries from Baseline(%s <%s>) to Baseline(%s <%s>):" %
+                              (componentbaselines[i].baselinename, componentbaselines[i].baseline,
+                               componentbaselines[i+1].baselinename, componentbaselines[i+1].baseline))
+                changeentries = rtc.getchangeentriesbetweenbaselines(
+                    componentbaselines[i].baseline, componentbaselines[i+1].baseline)
+                for changeentry in changeentries:
+                    missingchangeentries[changeentry.revision] = changeentry
+
+            if len(missingchangeentries):
+                shouter.shout("Accepting collected changesets [%s-%s]" %
+                    (componentbaselines[i].baselinename, componentbaselines[i+1].baselinename))
+                rtc.acceptchangesintoworkspace(rtc.getchangeentriestoaccept(missingchangeentries, history))
+                shouter.shout("/*\/*\/*\ All changes until baseline '%s' accepted" % componentbaselines[i+1].baselinename)
+
+                # Set tag only if there are changesets between baselines
+                git.settagname(componentbaselines[i+1].baselinename)
+                svn.settagname(componentbaselines[i+1].baselinename)
+        git.pushbranch(branchname)
 
     git.branch(streamname)
     changeentries = rtc.getchangeentriesofstream(streamuuid)
