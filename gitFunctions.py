@@ -101,6 +101,11 @@ class Commiter:
         shouter.shout("Commited change in local git repository")
 
     @staticmethod
+    def settagname(tagname):
+        shouter.shout("=====> New git TAG: %s" % tagname.split(" ")[0])
+        shell.execute("git tag \"%s\"" % tagname.split(" ")[0])
+
+    @staticmethod
     def handle_captitalization_filename_changes():
         sandbox = os.path.join(configuration.get().workDirectory, configuration.get().clonedGitRepoName)
         lines = shell.getoutput("git status -z", stripped=False)

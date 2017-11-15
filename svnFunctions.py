@@ -12,6 +12,24 @@ class svnCommiter:
         return "svn commit -m %s" % (shell.quote(" ".join(msg)))
 
     @staticmethod
+    def settagname(tagname):
+        config = configuration.get()
+        currentdir = os.getcwd()
+        if config.svnrepodir:
+            os.chdir(config.svnrepodir)
+            output = shell.getoutput("svn info | grep \"Repository Root\" | awk '{print $3}'")
+            if output:
+                svnurl = output[0]
+                shouter.shout("=====> New svn TAG: %s" % tagname)
+                shouter.shout("svnurl: %s" % svnurl)
+                shell.execute("svn copy %s/trunk %s/tags/%s -m \"%s\"" %
+                              (svnurl, svnurl, tagname.split(" ")[0], tagname))
+                shell.execute("svn update")
+            else:
+                shouter.shout("Error: Can't parse SVN url!")
+            os.chdir(currentdir)
+
+    @staticmethod
     def addandcommit(changeentry):
         config = configuration.get()
         if config.svnrepodir:
