@@ -67,7 +67,7 @@ class WorkspaceHandler:
         shouter.shout("Start (re)loading current workspace: " + command)
         shell.execute(command)
         shouter.shout("Load of workspace finished")
-        Commiter.restore_shed_gitignore(Commiter.get_untracked_statuszlines())
+        #Commiter.restore_shed_gitignore(Commiter.get_untracked_statuszlines())
 
 
     def setcomponentstobaseline(self, componentbaselineentries, streamuuid):
@@ -267,8 +267,8 @@ class ImportHandler:
                 Commiter.addandcommit(changeEntry)
 
                 # SVN support
-                if self.config.svnrepodir.strip():
-                    svnCommiter.addandcommit(changeEntry)
+#                if self.config.svnrepodir.strip():
+#                    svnCommiter.addandcommit(changeEntry)
         return amountofacceptedchanges
 
     @staticmethod

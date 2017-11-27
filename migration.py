@@ -24,15 +24,29 @@ def initialize():
     os.makedirs(directory)
     os.chdir(directory)
     config.deletelogfolder()
+
+    RTCInitializer.initialize()
+
+    # l'inizializzazione del repo bare la faccio dopo
     git = Initializer()
     git.initalize()
-    RTCInitializer.initialize()
     if Differ.has_diff():
         git.initialcommit()
     Commiter.pushmaster()
 
+#def initialize_git():
+#    git = Initializer()
+#    git.initalize()
+#    if Differ.has_diff():
+#        git.initialcommit()
+#    Commiter.pushmaster()
 
 def resume():
+
+    # do not resume!
+    shouter.shout("Resume disabled...Exit")
+    exit(0)
+
     shouter.shout("Found existing git repo in work directory, resuming migration...")
     config = configuration.get()
     os.chdir(config.workDirectory)
@@ -57,7 +71,6 @@ def migrate():
     rtc = ImportHandler()
     rtcworkspace = WorkspaceHandler()
     git = Commiter
-    svn = svnCommiter
     if existsrepo():
         resume()
     else:
@@ -89,7 +102,8 @@ def migrate():
     # progressive compare between baselines
     # TODO: refactor this part into rtcFunctions.py
     if config.component2load:
-        git.branch(branchname)
+
+        git.branch(branchname)  # Committer
         componentbaselines = rtc.getallcomponentbaselines(streamname, config.component2load)
         shouter.shout(" @ componentbaselines:")
         # debug only
@@ -116,7 +130,9 @@ def migrate():
 
                 # Set tag only if there are changesets between baselines
                 git.settagname(componentbaselines[i+1].baselinename)
-                svn.settagname(componentbaselines[i+1].baselinename)
+#                print("svn repo dir = %s" % config.svnrepodir)
+#                if config.svnrepodir and config.svnrepodir.strip(" ") != '':
+#                    svn.settagname(componentbaselines[i+1].baselinename)
         git.pushbranch(branchname)
 
     git.branch(streamname)
