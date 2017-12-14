@@ -46,7 +46,6 @@ def read(configname=None):
     streamname = shlex.quote(migrationsection['StreamToMigrate'].strip())
     previousstreamname = migrationsection.get('PreviousStream', '').strip()
 
-    # new option
     component2load = shlex.quote(migrationsection['component2Load'].strip())
 
     baselines = getinitialcomponentbaselines(migrationsection.get('InitialBaseLines'))
