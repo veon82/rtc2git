@@ -22,7 +22,7 @@ StreamToMigrate = MyDevelopmentStream
 # (eg. When Migrating Stream_Version2, Previous-Stream would be Stream_Version1
 PreviousStream=
 
-# Specify if you want to load a single component
+# Optional - Used by author to load and migrate a single component instead of a whole workspace. Value must be set as component Name
 component2Load =
 
 # Optional, can be defined additionally to set the workspace to a specific baseline
