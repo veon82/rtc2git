@@ -49,6 +49,7 @@ class Initializer:
                 shell.execute("git commit -m %s -q" % shell.quote("Add .gitattributes"))
 
     def initalize(self):
+        shouter.shout("Initializing git repository")
         self.createrepo()
         self.preparerepo()
 
@@ -304,6 +305,13 @@ class Commiter:
 
         :param statuszlines: the git status z output lines
         """
+
+        # if os.path.exists(".jazzShed"):
+        #     if len(os.listdir()) == 1:
+        #         _sheddir = os.listdir()[0]
+        #         component = configuration.get().component2load
+        #         shell.execute("cp -a %s/%s %s" % (_sheddir, component, component))
+
         gitignore = ".gitignore"
         gitignorelen = len(gitignore)
         deletedfiles = Commiter.splitoutputofgitstatusz(statuszlines, " D ")

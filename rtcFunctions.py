@@ -59,7 +59,7 @@ class WorkspaceHandler:
         self.load()
 
     def load(self):
-        command = "%s load -r %s %s --force --allow" % (self.scmcommand, self.repo, self.workspace)
+        command = "%s load -r %s %s --force --resync --allow -d %s" % (self.scmcommand, self.repo, self.workspace, self.config.workDirectory)
         if self.config.includecomponentroots:
             command += " --include-root"
         if self.config.component2load:
@@ -67,7 +67,7 @@ class WorkspaceHandler:
         shouter.shout("Start (re)loading current workspace: " + command)
         shell.execute(command)
         shouter.shout("Load of workspace finished")
-        #Commiter.restore_shed_gitignore(Commiter.get_untracked_statuszlines())
+        Commiter.restore_shed_gitignore(Commiter.get_untracked_statuszlines())
 
 
     def setcomponentstobaseline(self, componentbaselineentries, streamuuid):

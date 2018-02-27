@@ -34,13 +34,6 @@ def initialize():
         git.initialcommit()
     Commiter.pushmaster()
 
-#def initialize_git():
-#    git = Initializer()
-#    git.initalize()
-#    if Differ.has_diff():
-#        git.initialcommit()
-#    Commiter.pushmaster()
-
 def resume():
 
     # do not resume!

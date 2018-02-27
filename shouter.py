@@ -1,6 +1,6 @@
 from datetime import datetime
 import sys
-
+import os
 
 def shout(messagetoshout):
     safeshout("%s - %s" % (gettimestamp(), messagetoshout))
@@ -11,7 +11,7 @@ def shoutwithdate(messagetoshout):
 
 
 def safeshout(messagetoshout):
-    print(messagetoshout.encode('utf8').decode(sys.stdout.encoding))
+    print("[%s] %s" % (os.getcwd(), messagetoshout.encode('utf8').decode(sys.stdout.encoding)))
 
 
 def gettimestamp():
