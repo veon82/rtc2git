@@ -1,0 +1,38 @@
+diff --git a/migration.py b/migration.py
+index be378c6..04c3592 100755
+--- a/migration.py
++++ b/migration.py
+@@ -37,8 +37,8 @@ def initialize():
+ def resume():
+ 
+     # do not resume!
+-    shouter.shout("Resume disabled...Exit")
+-    exit(0)
++#    shouter.shout("Resume disabled...Exit")
++#    exit(0)
+ 
+     shouter.shout("Found existing git repo in work directory, resuming migration...")
+     config = configuration.get()
+diff --git a/rtcFunctions.py b/rtcFunctions.py
+index 8a0ba87..a2c78ca 100644
+--- a/rtcFunctions.py
++++ b/rtcFunctions.py
+@@ -215,6 +215,7 @@ class ImportHandler:
+ 
+     def getallcomponentbaselines(self, stream, componentname):
+         baselines = []
++        found_first = False
+         regex = "\(_[\w-]+\)"
+         regex2="(\"[\w][^\"]+\")"
+         patternuuid = re.compile(regex)
+@@ -245,6 +246,10 @@ class ImportHandler:
+                     # skip backup baselines created by RTC system
+                     if baselinename.lower().startswith("backup before"):
+                         continue
++                    if baselinename.split(" ")[0] == "20170005":
++                        found_first = True
++                    if not found_first and baselinename.split(" ")[0] != "20170005":
++                        continue
+                     baselines.append(
+                         ComponentBaseLineEntry(entry.component, baseline, entry.componentname, baselinename))
+         return baselines
