@@ -49,6 +49,7 @@ def read(configname=None):
     # new options
     svnrepodir = shlex.quote(generalsection['SVNRepoDir'])
     component2load = shlex.quote(migrationsection['component2Load'].strip())
+    frombaseline = migrationsection.get('fromBaseline',"").strip()
 
     baselines = getinitialcomponentbaselines(migrationsection.get('InitialBaseLines'))
     ignorefileextensionsproperty = parsedconfig.get(miscsectionname, 'IgnoreFileExtensions', fallback='')
@@ -68,6 +69,7 @@ def read(configname=None):
     configbuilder.setworkdirectory(workdirectory).setstreamname(streamname).setinitialcomponentbaselines(baselines)
     configbuilder.setpreviousstreamname(previousstreamname)
     configbuilder.setcomponent2load(component2load)
+    configbuilder.setfrombaseline(frombaseline)
     configbuilder.setsvnrepodir(svnrepodir)
     configbuilder.setignorefileextensions(ignorefileextensions)
     configbuilder.setignoredirectories(ignoredirectories)
@@ -149,6 +151,7 @@ class Builder:
         self.commitmessageprefix = ""
         self.gitattributes = ""
         self.component2load = ""
+        self.frombaseline = ""
         self.svnrepodir = ""
 
     def setuser(self, user):
@@ -197,6 +200,10 @@ class Builder:
 
     def setcomponent2load(self, component2load):
         self.component2load = component2load
+        return self
+
+    def setfrombaseline(self, frombaseline):
+        self.frombaseline = frombaseline
         return self
 
     def setgitreponame(self, reponame):
@@ -254,14 +261,15 @@ class Builder:
                             self.streamname, self.gitreponame, self.useprovidedhistory,
                             self.useautomaticconflictresolution, self.maxchangesetstoaccepttogether, self.clonedgitreponame, self.rootFolder,
                             self.previousstreamname, self.ignorefileextensions, self.ignoredirectories, self.includecomponentroots,
-                            self.commitmessageprefix, self.gitattributes, self.component2load, self.svnrepodir)
+                            self.commitmessageprefix, self.gitattributes, self.component2load, self.svnrepodir, self.frombaseline)
 
 
 class ConfigObject:
     def __init__(self, user, password, repourl, scmcommand, workspace, useexistingworkspace, workdirectory,
                  initialcomponentbaselines, streamname, gitreponame, useprovidedhistory,
                  useautomaticconflictresolution, maxchangesetstoaccepttogether, clonedgitreponame, rootfolder, previousstreamname,
-                 ignorefileextensions, ignoredirectories, includecomponentroots, commitmessageprefix, gitattributes, component2load, svnrepodir):
+                 ignorefileextensions, ignoredirectories, includecomponentroots, commitmessageprefix, gitattributes, component2load,
+                 svnrepodir, frombaseline):
         self.user = user
         self.password = password
         self.repo = repourl
@@ -288,6 +296,7 @@ class ConfigObject:
         self.commitmessageprefix = commitmessageprefix
         self.gitattributes = gitattributes
         self.component2load = component2load
+        self.frombaseline = frombaseline
         self.svnrepodir = svnrepodir
 
     def getlogpath(self, filename):

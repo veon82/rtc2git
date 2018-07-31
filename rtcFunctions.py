@@ -100,7 +100,7 @@ class WorkspaceHandler:
 
 
 class Changes:
-    
+
     latest_accept_command = ""
 
     @staticmethod
@@ -230,6 +230,7 @@ class ImportHandler:
             baselineslines = shell.getoutput(command)
             baselineslines.reverse()  # reverse to have earliest baseline on top
             for baselineline in baselineslines:
+
                 matcheruuid = patternuuid.search(baselineline)
                 matcherdesc = patterndesc.search(baselineline)
                 if matcheruuid:
@@ -243,8 +244,10 @@ class ImportHandler:
                     else:
                         baselinename = "noname"
                     # skip backup baselines created by RTC system
+
                     if baselinename.lower().startswith("backup before"):
                         continue
+
                     baselines.append(
                         ComponentBaseLineEntry(entry.component, baseline, entry.componentname, baselinename))
         return baselines

@@ -37,8 +37,8 @@ def initialize():
 def resume():
 
     # do not resume!
-    shouter.shout("Resume disabled...Exit")
-    exit(0)
+    #shouter.shout("Resume disabled...Exit")
+    #exit(0)
 
     shouter.shout("Found existing git repo in work directory, resuming migration...")
     config = configuration.get()
@@ -104,8 +104,20 @@ def migrate():
             shouter.shout(" @ %s %s %s %s" %
                           (cbl.componentname, cbl.component, cbl.baselinename, cbl.baseline))
 
+        startfrombaseline = False
+        frombaseline = config.frombaseline
+        shouter.shout(" @ frombaseline:%s" % frombaseline)
         for i, cbl in enumerate(componentbaselines):
             missingchangeentries = {}
+            baselinename = cbl.baselinename.split(" ")[0].replace(":", " ").strip()
+            shouter.shout(" @ baselinename:%s" % baselinename)
+            if frombaseline != "" and baselinename == frombaseline:
+                startfrombaseline = True
+
+            if frombaseline != "" and not startfrombaseline:
+                shouter.shout("---> Ignore baseline: %s" % baselinename)
+                continue
+
             if i < len(componentbaselines)-1:
                 shouter.shout("Start collecting changeentries from Baseline(%s <%s>) to Baseline(%s <%s>):" %
                               (componentbaselines[i].baselinename, componentbaselines[i].baseline,

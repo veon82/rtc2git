@@ -103,8 +103,10 @@ class Commiter:
 
     @staticmethod
     def settagname(tagname):
-        shouter.shout("=====> New git TAG: %s" % tagname.split(" ")[0])
-        shell.execute("git tag \"%s\"" % tagname.split(" ")[0])
+        tagname = tagname.split(" ")[0]
+        tagname = tagname.replace(":", " ").strip()
+        shouter.shout("=====> New git TAG: %s" % tagname)
+        shell.execute("git tag \"%s\"" % tagname)
 
     @staticmethod
     def handle_captitalization_filename_changes():
